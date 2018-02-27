@@ -41,14 +41,16 @@ public class RoutesHandler {
 	}
 	
 	@RequestMapping("/dashboard")
-    @ResponseBody
+    //@ResponseBody
 	public String showDashboard() {
-		return "Dashboard";
+		return "card.html";
 	} 
 	
 	
 	  @PostMapping("/form")
+	  @ResponseBody
 	    public String formPost(User user, Model model) {
+		  
 	        userRepository.save(user);
 	        return "dashboard";
 	    }
