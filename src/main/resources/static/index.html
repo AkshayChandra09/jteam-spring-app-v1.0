@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+<title>Spring Boot and Thymeleaf example</title>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+</head>
+<body>
+	<h3>Spring Boot and Thymeleaf, part 2 - forms</h3>
+	<form action="/form" method="post">
+		<table>
+			<tr>
+				<td>user_name:</td>
+					<td><input type="text" name="user_name" /></td>
+				</tr>
+			<tr>
+				<td>password:</td>
+					<td><input type="text" name="password" /></td>
+				</tr>
+			<tr>
+				<td><button type="submit">Submit post</button></td>
+			</tr>
+		</table>
+	</form>
+</body>
+</html>
