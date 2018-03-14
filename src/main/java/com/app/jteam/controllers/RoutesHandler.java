@@ -2,6 +2,7 @@ package com.app.jteam.controllers;
 
 
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -19,10 +20,11 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import com.app.jteam.entities.Task;
-import com.app.jteam.entities.TeamMembersPerTask;
+import com.app.jteam.entities.AssignedTeamMember;
 import com.app.jteam.entities.User;
 import com.app.jteam.repositories.DataRepository;
 import com.app.jteam.repositories.TasksRepo;
+import com.app.jteam.repositories.TeamMemberRepo;
 
 
 @Controller
@@ -32,6 +34,8 @@ public class RoutesHandler {
 	private DataRepository userRepository;
 	@Autowired
 	private TasksRepo saveTask;
+	@Autowired
+	private TeamMemberRepo team_member;
 	
 
 	@RequestMapping("/")
@@ -96,6 +100,7 @@ public class RoutesHandler {
 	 @PostMapping("/task")
 	 @ResponseBody
 	 public String add_task(String name, String deadline, String priority, String status) {
+		 
 		  try{
 				Date assigned_date = new Date();
 				Task addTask = new Task();	 
@@ -108,11 +113,16 @@ public class RoutesHandler {
 				addTask.setTask_status(status);
 				saveTask.save(addTask);
 				
-				//Add team members:
-				/*int [] user_ids = {1,2,3};
-				GetOneTaskRepo g1 = null;
-				Task newTask = g1.findOne(name); 
-				TeamMembersPerTask team = new TeamMembersPerTask(newTask.getId(), user_ids);*/
+				ArrayList<Integer> user_ids = new ArrayList<Integer>();
+				user_ids.add(1);
+				user_ids.add(2);
+				user_ids.add(3);
+					
+				for(int i=0;i<user_ids.size();i++){
+					AssignedTeamMember tm = new AssignedTeamMember();
+					tm.setParameters(1,user_ids.get(i));
+					team_member.save(tm);
+				}
 								
 				return "Task Added";
 		  	}
