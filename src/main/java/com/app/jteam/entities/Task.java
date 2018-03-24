@@ -10,7 +10,7 @@ public class Task {
 	@Id
 	@GeneratedValue
 	@Column(nullable=false)
-	private Long id;
+	private long id;
 	
 	@Column(nullable=false)
 	private String task_name;
@@ -31,14 +31,10 @@ public class Task {
     //String strDate = formatter.format(date);   
 	
 	public Task(){
-		/*task_name = "XXX";
-		task_assigned_date = null;
-		task_deadline = null;
-		task_status="incomplete";
-		task_priority="low";*/
+		
 	}
 	
-	public Task(Long id, String task_name, Date task_assigned_date, Date task_deadline, String task_status,
+	public Task(long id, String task_name, Date task_assigned_date, Date task_deadline, String task_status,
 			String task_priority) {
 		this.id = id;
 		this.task_name = task_name;
@@ -89,7 +85,7 @@ public class Task {
 		this.task_assigned_date = task_assigned_date;
 	}
 
-	public Long getId() {
+	public long getId() {
 		return id;
 	}
 	

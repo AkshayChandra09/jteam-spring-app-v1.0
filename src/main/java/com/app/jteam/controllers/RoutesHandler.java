@@ -1,41 +1,60 @@
 package com.app.jteam.controllers;
 
 
+import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import javax.persistence.EntityManager;
+import javax.persistence.PersistenceContext;
 import javax.validation.Valid;
+
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
+import org.springframework.web.bind.annotation.CrossOrigin;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.app.jteam.entities.Task;
 import com.app.jteam.entities.AssignedTeamMember;
+import com.app.jteam.entities.Project;
 import com.app.jteam.entities.User;
 import com.app.jteam.repositories.DataRepository;
+import com.app.jteam.repositories.ProjectRepo;
 import com.app.jteam.repositories.TasksRepo;
 import com.app.jteam.repositories.TeamMemberRepo;
 
-
-@Controller
+@RestController
+@RequestMapping("/api")
+@CrossOrigin(origins="http://localhost:4200", allowedHeaders="*")
 public class RoutesHandler {
 	
 	@Autowired
 	private DataRepository userRepository;
 	@Autowired
-	private TasksRepo saveTask;
+	private TasksRepo task_operation;
+	
 	@Autowired
 	private TeamMemberRepo team_member;
+	
+	@Autowired
+	private ProjectRepo project_repository;
 	
 
 	@RequestMapping("/")
@@ -43,6 +62,21 @@ public class RoutesHandler {
 	public String indexPage() {
 		return "index.html";
 	}
+	
+	
+	//lame approach
+	@GetMapping("/login/{user_name}/{password}")
+	public String tryLogin(@PathVariable String user_name, @PathVariable String password){
+		User u = userRepository.findByUserName(user_name);
+		System.out.println("\n"+u.getId()+"\t"+u.getUser_name()+"\t"+u.getPassword()+"\n\n");
+		
+		if(password.equals(u.getPassword())){
+			return "Successful..";
+		}
+		else
+			return "Login failed...";
+	}
+	
 	
 	@RequestMapping("/register")
     @ResponseBody
@@ -97,10 +131,13 @@ public class RoutesHandler {
 		 return "addTask.html";
 	 }
 	 
-	 @PostMapping("/task")
+	 @RequestMapping("/task")  
 	 @ResponseBody
-	 public String add_task(String name, String deadline, String priority, String status) {
-		 
+	 public String add_task() {
+		 String name = "one to x";
+		 String deadline = "10-12-2017";
+		 String priority = "high";
+		 String status="completed";
 		  try{
 				Date assigned_date = new Date();
 				Task addTask = new Task();	 
@@ -111,25 +148,84 @@ public class RoutesHandler {
 				addTask.setTask_deadline(strDate);
 				addTask.setTask_priority(priority);
 				addTask.setTask_status(status);
-				saveTask.save(addTask);
-				
-				ArrayList<Integer> user_ids = new ArrayList<Integer>();
-				user_ids.add(1);
-				user_ids.add(2);
-				user_ids.add(3);
+				task_operation.save(addTask);
+
+				ArrayList<Long> user_ids = new ArrayList<Long>();
+				user_ids.add((long) 8);
+				user_ids.add((long) 9);
+				user_ids.add((long) 10);
+
 					
 				for(int i=0;i<user_ids.size();i++){
 					AssignedTeamMember tm = new AssignedTeamMember();
-					tm.setParameters(1,user_ids.get(i));
+					tm.setParameters(addTask.getId(),user_ids.get(i));
+					//User user = new User();
+					//user = userRepository.findOne(user_ids.get(i));
+					///user.assignTask(addTask.getId());
 					team_member.save(tm);
 				}
-								
+				
 				return "Task Added";
 		  	}
 		  	catch (Exception ex) {
-			    return "Error updating the user: " + ex.toString();
-			} 
+			    return "Error creating the task: " + ex.toString();
+		  		
+		  	} 
 	  }
+	  
+	 //for angular front end	
+	 @GetMapping("/showTasks")
+	 public List<Task> getUsers(){
+			return task_operation.findAll();
+	 }
 	 
+	 @GetMapping("/showTask/{id}")
+	 public Task getSingleTask(@PathVariable long id){
+		 return task_operation.findOne(id);
+	 }
+	 
+	//for angular front end
+	 @PutMapping("/task")
+	 public Task updateTask(@RequestBody Task task){
+		return task_operation.save(task);
+	}
+	 
+	//for angular front end
+	 @PostMapping("/new_task")
+	 public Task add_new_task(@RequestBody Task task){		 
+		return task_operation.save(task);
+	 }
+	 
+	//for angular front end
+	 @DeleteMapping("/task/{id}")
+	 public boolean deleteUser(@PathVariable Long id){
+	 	task_operation.delete(id);
+		return true;
+	 }
+	 
+	//for angular front end 
+	/*@RequestMapping("/showMembers/{id}")
+	@ResponseBody
+	public String getMembers(int id){
+
+			List<String> names = null;
+				List<AssignedTeamMember> assigned_to = team_member.findTaskIds((long) id);
+				
+				System.out.println("*****************************************");
+				
+					System.out.println(assigned_to.get(0).getMember_task_id()+"\t"+assigned_to.get(0).getTask_id()+"\t"+assigned_to.get(0).getTeam_member());
+					System.out.println(assigned_to.get(0).getMember_task_id()+"\t"+assigned_to.get(1).getTask_id()+"\t"+assigned_to.get(1).getTeam_member());
+					System.out.println(assigned_to.get(0).getMember_task_id()+"\t"+assigned_to.get(2).getTask_id()+"\t"+assigned_to.get(2).getTeam_member());
+				
+				//User nm = userRepository.findName((long) 8);
+				return "Okay..";
+	}*/
+	
+	 @GetMapping("/projectList")
+	 @ResponseBody
+	 public List<Project> getProjects(){
+		 return project_repository.findAll();
+	 }
+	
 	
 }
