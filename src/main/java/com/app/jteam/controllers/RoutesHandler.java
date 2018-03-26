@@ -13,9 +13,15 @@ import javax.validation.Valid;
 
 
 import org.springframework.beans.factory.annotation.Autowired;
+
+//import org.springframework.boot.autoconfigure.security.SecurityProperties;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.core.annotation.Order;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+//import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+//import org.springframework.security.config.annotation.web.configuration.WebSecurityConfigurerAdapter;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -29,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.app.jteam.entities.Task;
@@ -40,9 +47,10 @@ import com.app.jteam.repositories.ProjectRepo;
 import com.app.jteam.repositories.TasksRepo;
 import com.app.jteam.repositories.TeamMemberRepo;
 
-@RestController
-@RequestMapping("/api")
+
+@RestController 
 @CrossOrigin(origins="http://localhost:4200", allowedHeaders="*")
+@RequestMapping("/api")
 public class RoutesHandler {
 	
 	@Autowired
@@ -58,15 +66,15 @@ public class RoutesHandler {
 	
 
 	@RequestMapping("/")
-    //@ResponseBody
+    @ResponseBody
 	public String indexPage() {
 		return "index.html";
 	}
 	
 	
 	//lame approach
-	@GetMapping("/login/{user_name}/{password}")
-	public String tryLogin(@PathVariable String user_name, @PathVariable String password){
+	/*@GetMapping("/login/{user_name}/{password}")
+	public String tryLogin_old(@PathVariable String user_name, @PathVariable String password){
 		User u = userRepository.findByUserName(user_name);
 		System.out.println("\n"+u.getId()+"\t"+u.getUser_name()+"\t"+u.getPassword()+"\n\n");
 		
@@ -75,6 +83,19 @@ public class RoutesHandler {
 		}
 		else
 			return "Login failed...";
+	}*/
+	
+	@PostMapping("/login")
+	@ResponseStatus()
+	public User tryLogin(@RequestBody User user){
+		
+		User u = userRepository.findByUserName(user.getUser_name());
+		if(u!=null)
+			System.out.println("\n\nUser found\n");
+		else
+			System.out.println("\n\nUser Not Found\n");
+		//userRepository.save(user);
+		return user;
 	}
 	
 	
@@ -93,12 +114,12 @@ public class RoutesHandler {
 	
 	  @PostMapping("/form")
 	  @ResponseBody
-	  public String formPost(User user, Model model) {
+	  public String formPost(User user) {
 	        userRepository.save(user);
 		    return "redirect:dashboard";
 	    }
 	
-	@RequestMapping("/findall")
+	@RequestMapping("/getUsers")
     @ResponseBody
 	public List<User> findall(){
 		return userRepository.findAll();
@@ -110,7 +131,7 @@ public class RoutesHandler {
 	}
 	
 	 @RequestMapping("/update")
-	  @ResponseBody
+	 @ResponseBody
 	  public String updateUser() {
 		 long id = 10; String userName="amc400"; String pass="123";
 	    try {
@@ -226,6 +247,40 @@ public class RoutesHandler {
 	 public List<Project> getProjects(){
 		 return project_repository.findAll();
 	 }
+	 
+	 
+	 
+	 /*************************** Final Modules *******************************************/
+	 @PostMapping("/add_task_with_members")
+	 @ResponseBody
+	 public String add_task_with_members(@RequestBody TaskObject task_object){
+		 task_operation.save((task_object.getTask()));
+		 Task added_task = task_operation.findByName((task_object.getTask()).getTask_name());
+	 
+		 for(int i=0;i<(task_object.getMembers()).length;i++){
+			 AssignedTeamMember assigned_members = new AssignedTeamMember();
+			 assigned_members.setParameters(added_task.getId(),((task_object.getMembers())[i]).getId());
+			 team_member.save(assigned_members);
+		 }		  
+		 return "task_added";
+	 }
 	
+}
+
+class TaskObject{
+	public Task task_details;
+	public User[] members;
 	
+	public Task getTask() {
+		return task_details;
+	}
+	public void setTask(Task task) {
+		this.task_details = task;
+	}
+	public User[] getMembers() {
+		return members;
+	}
+	public void setMembers(User[] members) {
+		this.members = members;
+	}
 }
