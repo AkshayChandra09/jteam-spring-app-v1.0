@@ -21,6 +21,7 @@ public class Project {
 	
 	@Column(nullable=false)
 	private String project_desc;
+
 	
 
 	public int getId() {
