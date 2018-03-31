@@ -20,7 +20,7 @@ public class ProjectTeamMembers {
 	private int pid;
 	
 	@Column(name="user_id")
-	private int uid;
+	private long uid;
 
 	public int getId() {
 		return id;
@@ -38,11 +38,16 @@ public class ProjectTeamMembers {
 		this.pid = pid;
 	}
 
-	public int getUid() {
+	public long getUid() {
 		return uid;
 	}
 
-	public void setUid(int uid) {
+	public void setUid(long uid) {
+		this.uid = uid;
+	}
+	
+	public void setParameters(int pid, long uid){
+		this.pid = pid;
 		this.uid = uid;
 	}
 

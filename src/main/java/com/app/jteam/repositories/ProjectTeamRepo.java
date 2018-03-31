@@ -19,6 +19,6 @@ public interface ProjectTeamRepo extends JpaRepository<ProjectTeamMembers, Integ
 	@Transactional
 	@Modifying
 	@Query(value="SELECT t FROM ProjectTeamMembers t WHERE t.pid=:pid AND t.uid=:uid")
-	public List<ProjectTeamMembers> deleteProjectMember(@Param("pid") int pid, @Param("uid") int uid);
+	public List<ProjectTeamMembers> deleteProjectMember(@Param("pid") int pid, @Param("uid") long uid);
 
 }

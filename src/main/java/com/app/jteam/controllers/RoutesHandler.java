@@ -1,5 +1,6 @@
 package com.app.jteam.controllers;
 
+import java.io.IOException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -214,15 +215,15 @@ public class RoutesHandler {
 	 public Task add_new_task(@RequestBody Task task){		 
 		return task_operation.save(task);
 	 }
-	 
-	//for angular front end
+
+	/***************************** Final Modules *******************************************/
 	 @DeleteMapping("/task/{id}")
 	 public boolean deleteUser(@PathVariable Long id){
 	 	task_operation.delete(id);
 		return true;
 	 } 
 	 
-	//for angular front end 
+	 
 	 @DeleteMapping("/deleteMember/{tid}/{uid}")
 	 public boolean deleteMember(@PathVariable Long tid, @PathVariable Long uid){
 		 System.out.println(((team_member.deleteMember(tid,uid)).get(0)).getMember_task_id());
@@ -230,14 +231,14 @@ public class RoutesHandler {
 		 team_member.delete(id);
 		 return true;
 	 } 
-	
-	/***************************** Final Modules *******************************************/
+	 
 	 
 	 @GetMapping("/projectList")
 	 @ResponseBody
 	 public List<Project> getProjects(){
 		 return project_repository.findAll();
 	 }
+	 
 	 
 	 @GetMapping("/team_members/{pid}")
 	 @ResponseBody
@@ -252,13 +253,14 @@ public class RoutesHandler {
 		 return user_array;
 	 }
 	 
+
 	 @DeleteMapping("/delete_project_member/{pid}/{uid}")
-	 public boolean deleteProjectMember(@PathVariable Integer pid, @PathVariable Integer uid){
+	 public boolean deleteProjectMember(@PathVariable Integer pid, @PathVariable long uid){
 		 int id = ((projectTeam_repo.deleteProjectMember(pid,uid)).get(0)).getId();
 		 projectTeam_repo.delete(id); 
 		 return true;
 	 }
-	 
+
 	 
 	 @PostMapping("/add_task_with_members")
 	 @ResponseBody
@@ -274,6 +276,7 @@ public class RoutesHandler {
 		 return task_object;
 	 }
 	
+	 
 	 @GetMapping("/showMembers/{id}")
 	 @ResponseBody
 	 public ArrayList<User> getMembers(@PathVariable long id){
@@ -285,6 +288,21 @@ public class RoutesHandler {
 		}		
 		return user_array;
 	}
+	 
+	@PostMapping("/addProjectMembers")
+	@ResponseBody
+	public TeamObject addProjectMembers(@RequestBody TeamObject project_members){
+		int project_id = project_members.getProject_id();
+		User[] members = project_members.getMembers();	
+		for(int i=0;i<members.length;i++){
+			ProjectTeamMembers addMembers = new ProjectTeamMembers();
+			addMembers.setParameters(project_id, members[i].getId());
+			projectTeam_repo.save(addMembers);
+		}	
+		return project_members;	
+	}
+	
+	
 }
 
 class TaskObject{
@@ -296,6 +314,24 @@ class TaskObject{
 	}
 	public void setTask(Task task) {
 		this.task_details = task;
+	}
+	public User[] getMembers() {
+		return members;
+	}
+	public void setMembers(User[] members) {
+		this.members = members;
+	}
+
+}
+
+class TeamObject{
+	private int project_id;
+	private User[] members;
+	public int getProject_id() {
+		return project_id;
+	}
+	public void setProject_id(int project_id) {
+		this.project_id = project_id;
 	}
 	public User[] getMembers() {
 		return members;
