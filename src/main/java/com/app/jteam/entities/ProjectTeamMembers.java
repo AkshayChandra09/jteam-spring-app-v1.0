@@ -4,6 +4,8 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
 
 import com.app.jteam.entities.Project;
 import com.app.jteam.entities.User;
@@ -13,7 +15,6 @@ public class ProjectTeamMembers {
 	
 	@Id
 	@GeneratedValue
-	@Column(name="id")
 	private int id;
 	
 	@Column(name="project_id")
@@ -21,6 +22,7 @@ public class ProjectTeamMembers {
 	
 	@Column(name="user_id")
 	private long uid;
+	
 
 	public int getId() {
 		return id;

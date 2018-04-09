@@ -1,0 +1,70 @@
+#
+# A fatal error has been detected by the Java Runtime Environment:
+#
+#  EXCEPTION_ACCESS_VIOLATION (0xc0000005) at pc=0x6beb9ab8, pid=8756, tid=0x00000d68
+#
+# JRE version: Java(TM) SE Runtime Environment (8.0_161-b12) (build 1.8.0_161-b12)
+# Java VM: Java HotSpot(TM) Client VM (25.161-b12 mixed mode windows-x86 )
+# Problematic frame:
+# C  [jdwp.dll+0x19ab8]
+#
+# Failed to write core dump. Minidumps are not enabled by default on client versions of Windows
+#
+# If you would like to submit a bug report, please visit:
+#   http://bugreport.java.com/bugreport/crash.jsp
+# The crash happened outside the Java Virtual Machine in native code.
+# See problematic frame for where to report the bug.
+#
+
+---------------  T H R E A D  ---------------
+
+Current thread (0x14cd1800):  JavaThread "JDWP Command Reader" daemon [_thread_in_native, id=3432, stack(0x15140000,0x15190000)]
+
+siginfo: ExceptionCode=0xc0000005, reading address 0x00000000
+
+Registers:
+EAX=0x00000000, EBX=0x14cd1b00, ECX=0x1518f5f0, EDX=0x00000000
+ESP=0x1518f5d4, EBP=0x1518f600, ESI=0x14cd1800, EDI=0x6bec0eb8
+EIP=0x6beb9ab8, EFLAGS=0x00010246
+
+Top of Stack: (sp=0x1518f5d4)
+0x1518f5d4:   14ccbb38 14cd1800 6beabae1 14ccbb38
+0x1518f5e4:   6beabbb8 14cd1b70 14cd1800 00000000
+0x1518f5f4:   00000f90 14020100 16140010 1518f660
+0x1518f604:   50181fc0 00259950 14cd1940 00000000
+0x1518f614:   14ccaf98 501de810 14cd1800 14cd1800
+0x1518f624:   14cd1800 00000000 00000000 14cd1800
+0x1518f634:   14cc99c0 14cd1f70 14cd1f78 14cd2064
+0x1518f644:   000000ec 14cc99e8 14cd1940 15180000 
+
+Instructions: (pc=0x6beb9ab8)
+0x6beb9a98:   ec 6b e8 2f 9f ff ff 83 c4 10 33 c0 c3 56 eb 05
+0x6beb9aa8:   e8 a1 ff ff ff a1 e4 67 ec 6b ff 74 24 08 8b 00
+0x6beb9ab8:   8b 08 50 ff 91 80 00 00 00 e8 a8 ff ff ff 8b f0
+0x6beb9ac8:   83 fe 34 74 db 85 f6 74 43 57 68 1e 04 00 00 68 
+
+
+Register to memory mapping:
+
+EAX=0x00000000 is an unknown value
+EBX=0x14cd1b00 is an unknown value
+ECX=0x1518f5f0 is pointing into the stack for thread: 0x14cd1800
+EDX=0x00000000 is an unknown value
+ESP=0x1518f5d4 is pointing into the stack for thread: 0x14cd1800
+EBP=0x1518f600 is pointing into the stack for thread: 0x14cd1800
+ESI=0x14cd1800 is a thread
+EDI=0x6bec0eb8 is an unknown value
+
+
+Stack: [0x15140000,0x15190000],  sp=0x1518f5d4,  free space=317k
+Native frames: (J=compiled Java code, j=interpreted, Vv=VM code, C=native code)
+C  [jdwp.dll+0x19ab8]
+V  [jvm.dll+0x121fc0]
+V  [jvm.dll+0x17f08a]
+V  [jvm.dll+0x1c3be6]
+C  [msvcr100.dll+0x10fac]
+C  [msvcr100.dll+0x110b1]
+C  [kernel32.dll+0x1336a]
+C  [ntdll.dll+0x398f2]
+C  [ntdll.dll+0x398c5]
+C

@@ -3,9 +3,14 @@ package com.app.jteam.entities;
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
+
+import com.app.jteam.entities.Role;
 
 
 @Entity
@@ -19,6 +24,15 @@ public class User {
 	private String email_id;
 	private String role;
 	
+	/******************************************/
+	@OneToMany(fetch = FetchType.EAGER, cascade=CascadeType.ALL)
+    private List<Role> roles;
+	public User(String username, String password, List<Role> roles) {
+		this.user_name = username;
+	    this.password = password;
+	    this.roles = roles;
+	}
+	/******************************************/
 	public Long getId() {
 		return id;
 	}
@@ -58,5 +72,13 @@ public class User {
 	public User() {
 
 	}
+	
+	  public List<Role> getRoles() {
+	        return roles;
+	    }
+
+	    public void setRoles(List<Role> roles) {
+	        this.roles = roles;
+	    }
 
 }

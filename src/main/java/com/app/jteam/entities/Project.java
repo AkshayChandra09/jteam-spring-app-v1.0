@@ -1,5 +1,7 @@
 package com.app.jteam.entities;
 
+import java.sql.Date;
+import java.util.ArrayList;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -14,6 +16,7 @@ import javax.persistence.OneToMany;
 public class Project {
 	@Id
 	@GeneratedValue
+	@Column(name="id")
 	private int id;
 	
 	@Column(nullable=false)
@@ -21,7 +24,16 @@ public class Project {
 	
 	@Column(nullable=false)
 	private String project_desc;
-
+	
+	private Date project_start_date;
+ 
+	private String project_budget;
+	
+	private long project_admin;
+	
+	private String project_vendor_name;
+	
+	private String Status;
 	
 
 	public int getId() {
@@ -48,4 +60,60 @@ public class Project {
 		this.project_desc = project_desc;
 	}
 
+	public Date getProject_start_date() {
+		return project_start_date;
+	}
+
+	public void setProject_start_date(Date project_start_date) {
+		this.project_start_date = project_start_date;
+	}
+
+	public String getProject_budget() {
+		return project_budget;
+	}
+
+	public void setProject_budget(String project_budget) {
+		this.project_budget = project_budget;
+	}
+
+	public long getProject_admin() {
+		return project_admin;
+	}
+
+	public void setProject_admin(long project_admin) {
+		this.project_admin = project_admin;
+	}
+
+	public String getProject_vendor_name() {
+		return project_vendor_name;
+	}
+
+	public void setProject_vendor_name(String project_vendor_name) {
+		this.project_vendor_name = project_vendor_name;
+	}
+
+	public String getStatus() {
+		return Status;
+	}
+
+	public void setStatus(String status) {
+		Status = status;
+	}
+
+	public Project(String project_name, String project_desc, Date project_start_date, String project_budget,
+			long project_admin, String project_vendor_name, String status) {
+		super();
+		this.project_name = project_name;
+		this.project_desc = project_desc;
+		this.project_start_date = project_start_date;
+		this.project_budget = project_budget;
+		this.project_admin = project_admin;
+		this.project_vendor_name = project_vendor_name;
+		Status = status;
+	}
+
+	public Project() {
+	
+	}
+	
 }

@@ -35,10 +35,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.app.jteam.entities.Task;
+import com.app.jteam.controllers.TeamObject;
 import com.app.jteam.entities.AssignedTeamMember;
 import com.app.jteam.entities.Project;
 import com.app.jteam.entities.ProjectTeamMembers;
+import com.app.jteam.entities.Task;
 import com.app.jteam.entities.User;
 import com.app.jteam.repositories.DataRepository;
 import com.app.jteam.repositories.ProjectRepo;
@@ -106,9 +107,9 @@ public class RoutesHandler {
 	}
 	
 	@RequestMapping("/dashboard")
-    //@ResponseBody
+    @ResponseBody
 	public String showDashboard() {
-		return "card.html";
+		return "Dashboard";
 	} 
 	
 	
@@ -231,35 +232,6 @@ public class RoutesHandler {
 		 team_member.delete(id);
 		 return true;
 	 } 
-	 
-	 
-	 @GetMapping("/projectList")
-	 @ResponseBody
-	 public List<Project> getProjects(){
-		 return project_repository.findAll();
-	 }
-	 
-	 
-	 @GetMapping("/team_members/{pid}")
-	 @ResponseBody
-	 public List<User> getTeamMembers(@PathVariable int pid)
-	 {
-		 List<ProjectTeamMembers> team = projectTeam_repo.findMembers(pid);
-		 ArrayList<User> user_array = new ArrayList<>();	
-		 for(int i=0;i<team.size();i++){
-			    User user = userRepository.findOne((long)(team.get(i)).getUid());
-			    user_array.add(user); 	
-		 }		
-		 return user_array;
-	 }
-	 
-
-	 @DeleteMapping("/delete_project_member/{pid}/{uid}")
-	 public boolean deleteProjectMember(@PathVariable Integer pid, @PathVariable long uid){
-		 int id = ((projectTeam_repo.deleteProjectMember(pid,uid)).get(0)).getId();
-		 projectTeam_repo.delete(id); 
-		 return true;
-	 }
 
 	 
 	 @PostMapping("/add_task_with_members")
@@ -289,8 +261,64 @@ public class RoutesHandler {
 		return user_array;
 	}
 	 
+	 
+	/*************************** Project ******************************************/ 
+	 @GetMapping("/showProjectsList")
+	 //@ResponseBody
+	 public List<Project> getProjects(){
+		 return project_repository.findAll();
+	 }
+	 
+	 @GetMapping("/showProject/{id}")
+	//@ResponseBody
+	 public Project getSingleProject(@PathVariable Integer id){
+		 return project_repository.findOne(id);
+	 }
+	 
+	 
+	 @PutMapping("/editProjectDetails")
+	 public Project updateProject(@RequestBody Project project){
+		return project_repository.save(project);
+	}
+	
+	 @PostMapping("/newProject")
+	 public Project add_new_project(@RequestBody Project project){
+		 System.out.println(project);
+		return project_repository.save(project);
+	 }
+	
+	 @DeleteMapping("/project/{id}")
+	 @ResponseBody
+	 public boolean deleteProjct(@PathVariable Integer id){
+		 System.out.println(id);
+		 project_repository.delete(id);
+		return true;
+	 } 
+	 
+	 
+	 @GetMapping("/team_members/{pid}")
+	 @ResponseBody
+	 public List<User> getTeamMembers(@PathVariable int pid)
+	 {
+		 List<ProjectTeamMembers> team = projectTeam_repo.findMembers(pid);
+		 ArrayList<User> user_array = new ArrayList<>();	
+		 for(int i=0;i<team.size();i++){
+			    User user = userRepository.findOne((long)(team.get(i)).getUid());
+			    user_array.add(user); 	
+		 }		
+		 return user_array;
+	 }
+	 
+	 
+	 @DeleteMapping("/delete_project_member/{pid}/{uid}")
+	 public boolean deleteProjectMember(@PathVariable Integer pid, @PathVariable long uid){
+		 int id = ((projectTeam_repo.deleteProjectMember(pid,uid)).get(0)).getId();
+		 projectTeam_repo.delete(id); 
+		 return true;
+	 }
+	 
+	 
 	@PostMapping("/addProjectMembers")
-	@ResponseBody
 	public TeamObject addProjectMembers(@RequestBody TeamObject project_members){
 		int project_id = project_members.getProject_id();
 		User[] members = project_members.getMembers();	
@@ -302,6 +330,25 @@ public class RoutesHandler {
 		return project_members;	
 	}
 	
+	/****************************** End Project Module ***************************************/
+	
+	@GetMapping("/statistics")
+	@ResponseBody
+	public List<Statistics> getNo_of_teamMembers(){
+		List<TeamObject> members_per_project = projectTeam_repo.stats();
+		ArrayList<Statistics> statistics_for_chart = new ArrayList<>();
+		for(int i=0;i<members_per_project.size();i++){
+			Statistics stats = new Statistics();
+			int proj_id = (members_per_project.get(i)).getProject_id();  
+			stats.setProject_id(proj_id);  
+			Project project = new Project();
+			project = project_repository.findProject(proj_id);
+			stats.setProject_name(project.getProject_name());
+			stats.setNumberOfMembers((members_per_project.get(i)).getNumberOfMembers());
+			statistics_for_chart.add(stats);
+		}
+		return statistics_for_chart;
+	 }
 	
 }
 
@@ -321,22 +368,28 @@ class TaskObject{
 	public void setMembers(User[] members) {
 		this.members = members;
 	}
-
 }
 
-class TeamObject{
+class Statistics{
 	private int project_id;
-	private User[] members;
+	private String project_name;
+	private long numberOfMembers;
 	public int getProject_id() {
 		return project_id;
 	}
 	public void setProject_id(int project_id) {
 		this.project_id = project_id;
 	}
-	public User[] getMembers() {
-		return members;
+	public String getProject_name() {
+		return project_name;
 	}
-	public void setMembers(User[] members) {
-		this.members = members;
+	public void setProject_name(String project_name) {
+		this.project_name = project_name;
+	}
+	public long getNumberOfMembers() {
+		return numberOfMembers;
+	}
+	public void setNumberOfMembers(long numberOfMembers) {
+		this.numberOfMembers = numberOfMembers;
 	}
 }
