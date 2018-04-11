@@ -25,10 +25,10 @@ public class JteamSpringApp1Application {
 	@Autowired
 	public void authenticationManager(AuthenticationManagerBuilder builder, DataRepository repository, UserService service) throws Exception {
 		//Setup a default user if db is empty
-		if (repository.count()==0)
+		/*if (repository.count()==0)
 			service.save(new User("user", "user", Arrays.asList(new Role("USER"), new Role("ACTUATOR"))));
 		else
-			service.save(new User("user2", "pass", Arrays.asList(new Role("ADMIN"))));
+			service.save(new User("s_d228", "s_d228", Arrays.asList(new Role("ADMIN"))));*/
 		
 		builder.userDetailsService(userDetailsService(repository));
 		//.passwordEncoder(passwordEncoder);

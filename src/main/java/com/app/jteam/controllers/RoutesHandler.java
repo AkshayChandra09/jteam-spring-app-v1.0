@@ -38,11 +38,13 @@ import org.springframework.web.bind.annotation.RestController;
 import com.app.jteam.controllers.TeamObject;
 import com.app.jteam.entities.AssignedTeamMember;
 import com.app.jteam.entities.Project;
+import com.app.jteam.entities.ProjectTasks;
 import com.app.jteam.entities.ProjectTeamMembers;
 import com.app.jteam.entities.Task;
 import com.app.jteam.entities.User;
 import com.app.jteam.repositories.DataRepository;
 import com.app.jteam.repositories.ProjectRepo;
+import com.app.jteam.repositories.ProjectTasksRepo;
 import com.app.jteam.repositories.ProjectTeamRepo;
 import com.app.jteam.repositories.TasksRepo;
 import com.app.jteam.repositories.TeamMemberRepo;
@@ -61,10 +63,11 @@ public class RoutesHandler {
 	private TeamMemberRepo team_member;
 	@Autowired
 	private ProjectRepo project_repository;
-	
-	
 	@Autowired
 	private ProjectTeamRepo projectTeam_repo;
+	
+	@Autowired
+	private ProjectTasksRepo pro_tasks_repo;
 	
 	@RequestMapping("/")
     @ResponseBody
@@ -111,24 +114,25 @@ public class RoutesHandler {
 	public String showDashboard() {
 		return "Dashboard";
 	} 
-	
-	
 	  @PostMapping("/form")
 	  @ResponseBody
 	  public User formPost(@RequestBody User user) {
 	       return userRepository.save(user);
 	   }
 	
+	  @RequestMapping("/edit")
+		public String editForm(){
+			return "editUserInfo.html";
+		}
+	  
+	  /*********************************************************************************/
 	@RequestMapping("/getUsers")
     @ResponseBody
 	public List<User> findall(){
 		return userRepository.findAll();
 	}
 	
-	@RequestMapping("/edit")
-	public String editForm(){
-		return "editUserInfo.html";
-	}
+	
 	
 	 @RequestMapping("/update")
 	 @ResponseBody
@@ -244,7 +248,11 @@ public class RoutesHandler {
 			 AssignedTeamMember assigned_members = new AssignedTeamMember();
 			 assigned_members.setParameters(added_task.getId(),((task_object.getMembers())[i]).getId());
 			 team_member.save(assigned_members);
-		 }		  
+		 }	
+		 
+		 //insert record into project_task table
+		 ProjectTasks ptRecord = new ProjectTasks(task_object.getProject_id(), added_task.getId());
+		 pro_tasks_repo.save(ptRecord);
 		 return task_object;
 	 }
 	
@@ -319,15 +327,35 @@ public class RoutesHandler {
 	 
 	 
 	@PostMapping("/addProjectMembers")
+	@ResponseBody
 	public TeamObject addProjectMembers(@RequestBody TeamObject project_members){
 		int project_id = project_members.getProject_id();
-		User[] members = project_members.getMembers();	
+		User[] members = project_members.getMembers();
 		for(int i=0;i<members.length;i++){
 			ProjectTeamMembers addMembers = new ProjectTeamMembers();
 			addMembers.setParameters(project_id, members[i].getId());
 			projectTeam_repo.save(addMembers);
-		}	
-		return project_members;	
+		}
+		return project_members;
+	}
+	
+	
+	@GetMapping("/tasksInProject")
+	@ResponseBody
+	public List<ProjectTasks> tasksInProject(){
+		return pro_tasks_repo.findAll();
+	}
+	
+	@GetMapping("/showTasksInProject/{pid}")
+	@ResponseBody
+	public List<Task> showTasksInProject(@PathVariable int pid){
+		ArrayList<Task> tasksInProj = new ArrayList<>();
+		List<ProjectTasks> projTasks =  pro_tasks_repo.findProjectTasks(pid);
+		for(int i=0;i<projTasks.size();i++){
+			Task t1 = task_operation.findOne((projTasks.get(i).getTask_id()));
+			tasksInProj.add(t1);
+		}
+		return tasksInProj;
 	}
 	
 	/****************************** End Project Module ***************************************/
@@ -355,6 +383,7 @@ public class RoutesHandler {
 class TaskObject{
 	public Task task_details;
 	public User[] members;
+	public int project_id;
 	
 	public Task getTask() {
 		return task_details;
@@ -368,6 +397,13 @@ class TaskObject{
 	public void setMembers(User[] members) {
 		this.members = members;
 	}
+	public int getProject_id() {
+		return project_id;
+	}
+	public void setProject_id(int project_id) {
+		this.project_id = project_id;
+	}
+	
 }
 
 class Statistics{

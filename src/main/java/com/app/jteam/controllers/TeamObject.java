@@ -47,5 +47,11 @@ public class TeamObject {
 	public TeamObject(long numberOfMembers){
 		this.numberOfMembers = numberOfMembers;
 	}
-	
+
+	public TeamObject(int project_id, User[] members) {
+		this.project_id = project_id;
+		this.members = members;
+	}
+	public TeamObject() {
+	}
 }
