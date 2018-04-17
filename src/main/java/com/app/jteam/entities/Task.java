@@ -3,6 +3,9 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+
 import java.util.Date; 
 
 @Entity
@@ -24,7 +27,7 @@ public class Task {
 	private String task_status;
 	
 	private String task_priority;
-	
+
 	
 	//Date date = new Date();
     //SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");  
@@ -88,7 +91,6 @@ public class Task {
 	public long getId() {
 		return id;
 	}
-	
 	
 	/*@Override
 	public String toString() {

@@ -25,4 +25,6 @@ public interface TeamMemberRepo extends JpaRepository<AssignedTeamMember, Long>{
 	@Query(value="SELECT t FROM AssignedTeamMember t WHERE t.task_id=:task_id AND t.team_member=:team_member")
 	public List<AssignedTeamMember> deleteMember(@Param("task_id") long task_id, @Param("team_member") long team_member);
 	
+	@Query(value="SELECT t.task_id FROM AssignedTeamMember t WHERE t.team_member=:team_member")
+	public <Optional> List<Long> findTaskIdsByUserIds(@Param("team_member") long team_member);
 }

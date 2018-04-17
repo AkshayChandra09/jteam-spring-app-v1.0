@@ -73,12 +73,12 @@ public class User {
 
 	}
 	
-	  public List<Role> getRoles() {
+	public List<Role> getRoles() {
 	        return roles;
-	    }
+	}
 
-	    public void setRoles(List<Role> roles) {
+	 public void setRoles(List<Role> roles) {
 	        this.roles = roles;
-	    }
+	 }
 
 }

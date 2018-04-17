@@ -26,7 +26,13 @@ public interface ProjectTeamRepo extends JpaRepository<ProjectTeamMembers, Integ
 	 @Query(value="SELECT new com.app.jteam.controllers.TeamObject(p.pid, COUNT(p.uid)) FROM ProjectTeamMembers p GROUP BY p.pid")
 	 public List<TeamObject> stats();  
 	 
+	 @Query(value="SELECT COUNT(*) FROM ProjectTeamMembers WHERE pid=:pid")
+	 public long NumberOfMembers(@Param("pid") int pid);
+	 
 	 /*//select project.project_name,count(user_id) from project_team_members inner join project on project_team_members.project_id = project.id group by project_team_members.project_id;
 	 @Query(value="")
 	 public List<TeamObject> projectNameMembers();*/
+	 
+	 @Query(value="SELECT p FROM ProjectTeamMembers p WHERE p.uid=:uid")
+	 public <Optional> List<ProjectTeamMembers> findProjects(@Param("uid") long uid);
 }
