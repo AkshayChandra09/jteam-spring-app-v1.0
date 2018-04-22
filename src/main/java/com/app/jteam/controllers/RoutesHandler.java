@@ -1,6 +1,7 @@
 package com.app.jteam.controllers;
 
 import java.io.IOException;
+import java.security.Principal;
 import java.sql.SQLException;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -12,7 +13,8 @@ import javax.persistence.EntityManager;
 import javax.persistence.PersistenceContext;
 import javax.validation.Valid;
 
-
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import org.springframework.context.annotation.Configuration;
@@ -20,6 +22,8 @@ import org.springframework.core.annotation.Order;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -50,6 +54,9 @@ import com.app.jteam.repositories.ProjectTeamRepo;
 import com.app.jteam.repositories.TasksRepo;
 import com.app.jteam.repositories.TeamMemberRepo;
 
+import com.app.jteam.services.UserService;
+import com.app.jteam.util.CustomErrorType;
+
 
 @RestController 
 @RequestMapping("/api")
@@ -69,6 +76,14 @@ public class RoutesHandler {
 	
 	@Autowired
 	private ProjectTasksRepo pro_tasks_repo;
+	
+	@Autowired
+	private UserService userService;
+	
+	public static final Logger logger = LoggerFactory.getLogger(RoutesHandler.class);
+
+	
+	
 	
 	@RequestMapping("/")
     @ResponseBody
@@ -90,7 +105,7 @@ public class RoutesHandler {
 			return "Login failed...";
 	}*/
 	
-	@PostMapping("/login")
+	/*@PostMapping("/login")
 	@ResponseStatus()
 	public User tryLogin(@RequestBody User user){
 		
@@ -105,38 +120,25 @@ public class RoutesHandler {
 		
 		return user;
 
-	}
+	}*/
 	
 	
-	@RequestMapping("/register")
-    @ResponseBody
-	public String userRegistration() {
-		return "Register";
-	}
+
 	
-	@RequestMapping("/dashboard")
-    @ResponseBody
-	public String showDashboard() {
-		return "Dashboard";
-	} 
-	  @PostMapping("/form")
-	  @ResponseBody
-	  public User formPost(@RequestBody User user) {
-	       return userRepository.save(user);
-	   }
-	
-	  @RequestMapping("/edit")
-		public String editForm(){
-			return "editUserInfo.html";
-		}
-	  
-	  /*********************************************************************************/
+	/*********************************************************************************/
 	@RequestMapping("/getUsers")
     @ResponseBody
 	public List<User> findall(){
 		return userRepository.findAll();
 	}
 	
+	
+	@PostMapping("/register")
+	@ResponseBody
+	public User formPost(@RequestBody User user) {
+		System.out.println("User Info: "+user);
+	     return userRepository.save(user);
+	} 
 	
 	
 	 @RequestMapping("/update")
@@ -154,54 +156,8 @@ public class RoutesHandler {
 	    }
 	    return "User succesfully updated!";
 	  }
-	
-	 @RequestMapping("/add_task")
-	 public String task_form()
-	 {
-		 return "addTask.html";
-	 }
 	 
-	 @RequestMapping("/task")  
-	 @ResponseBody
-	 public String add_task() {
-		 String name = "one to x";
-		 String deadline = "10-12-2017";
-		 String priority = "high";
-		 String status="completed";
-		  try{
-				Date assigned_date = new Date();
-				Task addTask = new Task();	 
-				addTask.setTask_name(name);
-				addTask.setTask_assigned_date(assigned_date);
-				SimpleDateFormat formatter = new SimpleDateFormat("MM-dd-yyyy");  
-				Date strDate = formatter.parse(deadline);
-				addTask.setTask_deadline(strDate);
-				addTask.setTask_priority(priority);
-				addTask.setTask_status(status);
-				task_operation.save(addTask);
 
-				ArrayList<Long> user_ids = new ArrayList<Long>();
-				user_ids.add((long) 8);
-				user_ids.add((long) 9);
-				user_ids.add((long) 10);
-
-					
-				for(int i=0;i<user_ids.size();i++){
-					AssignedTeamMember tm = new AssignedTeamMember();
-					tm.setParameters(addTask.getId(),user_ids.get(i));
-					//User user = new User();
-					//user = userRepository.findOne(user_ids.get(i));
-					///user.assignTask(addTask.getId());
-					team_member.save(tm);
-				}
-				
-				return "Task Added";
-		  	}
-		  	catch (Exception ex) {
-			    return "Error creating the task: " + ex.toString();
-		  		
-		  	} 
-	  }
 	  
 	 //for angular front end	
 	 @GetMapping("/showTasks")
@@ -214,22 +170,27 @@ public class RoutesHandler {
 		 return task_operation.findOne(id);
 	 }
 	 
+	
+
+	/***************************** Final Modules *******************************************/
+	
 	//for angular front end
-	 @PutMapping("/task")
-	 public Task updateTask(@RequestBody Task task){
+	@PutMapping("/task")
+	public Task updateTask(@RequestBody Task task){
+		return task_operation.save(task);
+	}
+		 
+	//for angular front end
+	@PostMapping("/new_task")
+	public Task add_new_task(@RequestBody Task task){		 
 		return task_operation.save(task);
 	}
 	 
-	//for angular front end
-	 @PostMapping("/new_task")
-	 public Task add_new_task(@RequestBody Task task){		 
-		return task_operation.save(task);
-	 }
-
-	/***************************** Final Modules *******************************************/
 	 @DeleteMapping("/task/{id}")
 	 public boolean deleteUser(@PathVariable Long id){
 	 	task_operation.delete(id);
+	 	pro_tasks_repo.delete(id);
+	 	team_member.delete(id);
 		return true;
 	 } 
 	 
@@ -358,7 +319,11 @@ public class RoutesHandler {
 		List<ProjectTasks> projTasks =  pro_tasks_repo.findProjectTasks(pid);
 		for(int i=0;i<projTasks.size();i++){
 			Task t1 = task_operation.findOne((projTasks.get(i).getTask_id()));
-			tasksInProj.add(t1);
+			//database will return null if no task is found. 
+			//we are not interested in sending array of null values
+			if(t1!=null){
+				tasksInProj.add(t1);
+			}
 		}
 		return tasksInProj;
 	}
@@ -418,6 +383,7 @@ public class RoutesHandler {
 		double percent_complete = ((double)task_completed/total_tasks) * 100 ;
 		
 		stats.setPercent_complete(percent_complete);
+		//System.out.println("\n\nStats: ");
 		
 		return stats;
 	 }
@@ -468,6 +434,34 @@ public class RoutesHandler {
 	}
 	
 	/******************************* End TeamMembers Module ***************************************/
+	/************************ Login *********************************************/
+
+	/*@RequestMapping(value = "/register", method = RequestMethod.POST)
+	public ResponseEntity<?> createUser(@RequestBody User newUser) {
+		if (userService.find(newUser.getUser_name()) != null) {
+			logger.error("username Already exist " + newUser.getUser_name());
+			return new ResponseEntity(
+					new CustomErrorType("user with username " + newUser.getUser_name() + "already exist "),
+					HttpStatus.CONFLICT);
+		}
+		newUser.setRole("USER");
+		
+		return new ResponseEntity<User>(userService.save(newUser), HttpStatus.CREATED);
+	}*/
+
+	@RequestMapping("/login")
+	public Principal user(Principal principal) {
+		logger.info("user logged "+principal);
+		return principal;
+	}
+	
+	@RequestMapping("/test")
+	public String user() {
+		return "test";
+	}
+	
+	
+
 }
 
 class TaskObject{

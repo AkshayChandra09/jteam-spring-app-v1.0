@@ -17,5 +17,6 @@ public interface DataRepository extends JpaRepository<User,Long>{
 	<Optional>User findByUserName(@Param("user_name") String user_name);
 	
 	//User findByUsername(String user_name);
+	//public User findOneByUser_name(String username);
 }
 

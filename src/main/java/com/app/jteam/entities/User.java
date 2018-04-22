@@ -1,6 +1,7 @@
 package com.app.jteam.entities;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 
 import javax.persistence.CascadeType;
@@ -9,12 +10,23 @@ import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.OneToMany;
+import javax.persistence.Table;
+
+import org.springframework.context.annotation.Scope;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import com.app.jteam.entities.Role;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 
 @Entity
-public class User {
+@Table(name="User")
+@Scope("session")
+public class User implements UserDetails {
+	
+	
 	@Id
 	@GeneratedValue
 	private Long id;
@@ -24,14 +36,15 @@ public class User {
 	private String email_id;
 	private String role;
 	
+	
 	/******************************************/
-	@OneToMany(fetch = FetchType.EAGER, cascade=CascadeType.ALL)
+	/*@OneToMany(fetch = FetchType.EAGER, cascade=CascadeType.ALL)
     private List<Role> roles;
 	public User(String username, String password, List<Role> roles) {
 		this.user_name = username;
 	    this.password = password;
 	    this.roles = roles;
-	}
+	}*/
 	/******************************************/
 	public Long getId() {
 		return id;
@@ -63,9 +76,11 @@ public class User {
 	public void setEmail_id(String email_id) {
 		this.email_id = email_id;
 	}
+	
 	public String getRole() {
 		return role;
 	}
+	
 	public void setRole(String role) {
 		this.role = role;
 	}
@@ -73,12 +88,49 @@ public class User {
 
 	}
 	
-	public List<Role> getRoles() {
+	/*public List<Role> getRoles() {
 	        return roles;
 	}
 
 	 public void setRoles(List<Role> roles) {
 	        this.roles = roles;
-	 }
+	 }*/
+	 
+		@JsonIgnore
+		@Override
+		public boolean isEnabled() {
+			return true;
+		}
+
+		@JsonIgnore
+		@Override
+		public boolean isCredentialsNonExpired() {
+			return true;
+		}
+
+		@JsonIgnore
+		@Override
+		public boolean isAccountNonLocked() {
+			return true;
+		}
+
+		@JsonIgnore
+		@Override
+		public boolean isAccountNonExpired() {
+			return true;
+		}
+
+		@JsonIgnore
+		public Collection<? extends GrantedAuthority> getAuthorities() {
+			Collection<GrantedAuthority> authorities = new ArrayList<>();
+			authorities.add(new SimpleGrantedAuthority(role));
+			return authorities;
+		}
+		@Override
+		public String getUsername() {
+			// TODO Auto-generated method stub
+			return user_name;
+		}
+		
 
 }
