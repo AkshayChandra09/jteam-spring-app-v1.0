@@ -136,7 +136,7 @@ public class RoutesHandler {
 	@PostMapping("/register")
 	@ResponseBody
 	public User formPost(@RequestBody User user) {
-		System.out.println("User Info: "+user);
+		//System.out.println("User Info: "+user);
 	     return userRepository.save(user);
 	} 
 	
@@ -255,7 +255,7 @@ public class RoutesHandler {
 		return project_repository.save(project);
 	}
 	
-	 @PostMapping("/newProject")
+	 @RequestMapping(value="/newProject", method = RequestMethod.POST)
 	 public Project add_new_project(@RequestBody Project project){
 		 System.out.println(project);
 		return project_repository.save(project);
@@ -455,12 +455,16 @@ public class RoutesHandler {
 		return principal;
 	}
 	
-	@RequestMapping("/test")
-	public String user() {
-		return "test";
+	/*@PostMapping("
+")
+	public String logout() {
+		return "LoggedOut!!";
+	}*/
+	
+	@RequestMapping("/logout")
+	public Boolean user() {
+		return true;
 	}
-	
-	
 
 }
 

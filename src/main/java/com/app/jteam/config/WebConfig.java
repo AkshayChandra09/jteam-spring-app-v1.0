@@ -3,7 +3,9 @@ package com.app.jteam.config;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Configurable;
 import org.springframework.context.annotation.Bean;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.authentication.builders.AuthenticationManagerBuilder;
+import org.springframework.security.config.annotation.method.configuration.EnableGlobalMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -20,6 +22,8 @@ import com.app.jteam.services.AppUserDetailsService;
 
 @Configurable
 @EnableWebSecurity
+
+@EnableGlobalMethodSecurity(prePostEnabled = true)
 // Modifying or overriding the default spring boot security.
 public class WebConfig extends WebSecurityConfigurerAdapter {
 
@@ -56,20 +60,25 @@ public class WebConfig extends WebSecurityConfigurerAdapter {
 
 	// This method is used for override HttpSecurity of the web Application.
 	// We can specify our authorization criteria inside this method.
+	
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http.cors().and()
 		// starts authorizing configurations
 		.authorizeRequests()
-		// ignoring the guest's urls "
-		.anyRequest().permitAll().and()
+		// ignoring the guest's urls " //.antMatchers(HttpMethod.OPTIONS).permitAll()
+		.antMatchers("/api","/api/login","/", "/api/register").permitAll()
+		.antMatchers(HttpMethod.POST).permitAll()
+		.antMatchers(HttpMethod.POST, "/api/logout").permitAll()
+		.antMatchers(HttpMethod.PUT).permitAll()
+		.antMatchers(HttpMethod.DELETE).permitAll()
 		// authenticate all remaining URLS
-		//.anyRequest().fullyAuthenticated().and()
+		.anyRequest().authenticated().and()
       /* "/logout" will log the user out by invalidating the HTTP Session,
        * cleaning up any {link rememberMe()} authentication that was configured, */
 		.logout()
         .permitAll()
-		.logoutRequestMatcher(new AntPathRequestMatcher("/logout", "POST"))
+		.logoutRequestMatcher(new AntPathRequestMatcher("/api/logout", "POST"))
         .and()
 		// enabling the basic authentication
 		.httpBasic().and()
