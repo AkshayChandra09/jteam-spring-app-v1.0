@@ -328,6 +328,19 @@ public class RoutesHandler {
 		return tasksInProj;
 	}
 	
+	
+	@GetMapping("/getProjectTeam/{pid}")
+	@ResponseBody
+	public List<User> findProjectTeam(@PathVariable int pid){
+		List<Long> user_ids = projectTeam_repo.findTeam(pid);
+		ArrayList<User> users = new ArrayList<User>();
+		
+		for(int i=0;i<user_ids.size();i++){
+			users.add(userRepository.findOne(user_ids.get(i)));
+		}
+		return users;
+	}
+	
 	/****************************** End Project Module ***************************************/
 	
 	/******************************* Statistics Module ***************************************/

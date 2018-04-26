@@ -35,4 +35,8 @@ public interface ProjectTeamRepo extends JpaRepository<ProjectTeamMembers, Integ
 	 
 	 @Query(value="SELECT p FROM ProjectTeamMembers p WHERE p.uid=:uid")
 	 public <Optional> List<ProjectTeamMembers> findProjects(@Param("uid") long uid);
+	 
+	 @Query(value="SELECT t.uid FROM ProjectTeamMembers t WHERE t.pid=:pid")
+	 public List<Long> findTeam(@Param("pid") int pid);
+		
 }
